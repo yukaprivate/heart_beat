@@ -21,12 +21,16 @@ version: 1.0.0+1
 environment:
   sdk: ">=2.19.2 <3.0.0"
 
-# Dependencies specify other packages that your package needs in order to work.
-# To automatically upgrade your package dependencies to the latest versions
-# consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
+  # Dependencies specify other packages that your package needs in order to work.
+  # To automatically upgrade your package dependencies to the latest versions
+  # consider running `flutter pub upgrade --major-versions`. Alternatively,
+  # dependencies can be manually updated by changing the version numbers below to
+  # the latest version available on pub.dev. To see which dependencies have newer
+  # versions available, run `flutter pub outdated`.
+flutter_bluetooth_serial:
+  git:
+    url: https://github.com/bswhite1/flutter_bluetooth_serial.git
+    ref: android_12_updates
 dependencies:
   flutter:
     sdk: flutter
@@ -36,6 +40,14 @@ dependencies:
   cupertino_icons: ^1.0.2
   uuid: ^4.1.0
   polar: ^6.2.0
+  flutter_bloc: ^8.1.3
+  get_it: ^7.6.0
+  device_info_plus: ^9.1.2
+  permission_handler: ^11.0.1
+  flutter_blue_plus: ^1.31.13
+  go_router: ^12.1.1
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.8.1
 
 dev_dependencies:
   flutter_test:
@@ -47,6 +59,9 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  build_runner: ^2.3.3
+  freezed: ^2.4.1
+  json_serializable: ^6.6.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

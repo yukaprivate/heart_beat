@@ -1,179 +1,120 @@
+// Copyright 2017-2023, Charles Weinberger & Paul DeMarco.
+// All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
+
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:polar/polar.dart';
-import 'package:uuid/uuid.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:get_it/get_it.dart';
+import 'package:heart_beat/presentation/scan/screen/scan_screen.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import 'injector.dart';
+
+// import 'screens/bluetooth_off_screen.dart';
+// import 'screens/scan_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  setupLocator();
+  FlutterBluePlus.setLogLevel(LogLevel.verbose, color: true);
+  runApp(const FlutterBlueApp());
 }
 
-/// Example app
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+//
+// This widget shows BluetoothOffScreen or
+// ScanScreen depending on the adapter state
+//
+class FlutterBlueApp extends StatefulWidget {
+  const FlutterBlueApp({Key? key}) : super(key: key);
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<FlutterBlueApp> createState() => _FlutterBlueAppState();
 }
 
-class _MyAppState extends State<MyApp> {
-  static const identifier = '1C709B20';
+class _FlutterBlueAppState extends State<FlutterBlueApp> {
+  // BluetoothAdapterState _adapterState = BluetoothAdapterState.unknown;
 
-  final polar = Polar();
-  final logs = ['Service started'];
-
-  PolarExerciseEntry? exerciseEntry;
+  // late StreamSubscription<BluetoothAdapterState> _adapterStateStateSubscription;
 
   @override
   void initState() {
     super.initState();
+    // a();
+    // _adapterStateStateSubscription =
+    //     FlutterBluePlus.adapterState.listen((state) {
+    //   _adapterState = state;
+    //   if (mounted) {
+    //     setState(() {});
+    //   }
+    //   GetIt.I.registerSingleton(MainPresenter());
+    // });
 
-    polar.searchForDevice().listen((e) {
-      print(e.deviceId);
-    });
-    print('これ');
-    polar.batteryLevel.listen((e) => print('Battery: ${e.level}'));
-    final identifier =
-        polar.batteryLevel.first.then((value) => print(value.identifier));
-    polar.deviceConnecting.listen((_) => print('Device connecting'));
-    polar.deviceConnected.listen((_) => print('Device connected'));
-    polar.deviceDisconnected.listen((_) => print('Device disconnected'));
+    // var subscription = FlutterBluePlus.onScanResults.listen(
+    //   (results) {
+    //     if (results.isNotEmpty) {
+    //       ScanResult r = results.last; // the most recently found device
+    //       print(
+    //           '${r.device.remoteId}: "${r.advertisementData.advName}" found!');
+    //     }
+    //   },
+    //   onError: (e) {
+    //     print('ここここk');
+    //     print(e);
+    //   },
+    // );
+
+// cleanup: cancel subscription when scanning stops
+    // FlutterBluePlus.cancelWhenScanComplete(subscription);
+  }
+
+  // Future<void> a() async {
+  //   await Permission.location.request();
+  //   await Permission.bluetooth.request();
+  // }
+
+  @override
+  void dispose() {
+    // _adapterStateStateSubscription.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Polar example app'),
-          actions: [
-            PopupMenuButton(
-              itemBuilder: (context) => RecordingAction.values
-                  .map((e) => PopupMenuItem(value: e, child: Text(e.name)))
-                  .toList(),
-              onSelected: handleRecordingAction,
-              child: const IconButton(
-                icon: Icon(Icons.fiber_manual_record),
-                disabledColor: Colors.white,
-                onPressed: null,
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.stop),
-              onPressed: () {
-                log('Disconnecting from device: $identifier');
-                polar.disconnectFromDevice(identifier);
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.play_arrow),
-              onPressed: () {
-                log('Connecting to device: $identifier');
-                polar.connectToDevice(identifier);
-                streamWhenReady();
-              },
-            ),
-          ],
-        ),
-        body: ListView(
-          padding: const EdgeInsets.all(10),
-          shrinkWrap: true,
-          children: logs.reversed.map(Text.new).toList(),
-        ),
-      ),
+      color: Colors.lightBlue,
+      home: const ScanScreen(),
+      navigatorObservers: [BluetoothAdapterStateObserver()],
     );
-  }
-
-  void streamWhenReady() async {
-    await polar.sdkFeatureReady.firstWhere(
-      (e) =>
-          e.identifier == identifier &&
-          e.feature == PolarSdkFeature.onlineStreaming,
-    );
-    final availabletypes =
-        await polar.getAvailableOnlineStreamDataTypes(identifier);
-
-    debugPrint('available types: $availabletypes');
-
-    if (availabletypes.contains(PolarDataType.hr)) {
-      polar
-          .startHrStreaming(identifier)
-          .listen((e) => log('Heart rate: ${e.samples.map((e) => e.hr)}'));
-    }
-    if (availabletypes.contains(PolarDataType.ecg)) {
-      polar
-          .startEcgStreaming(identifier)
-          .listen((e) => log('ECG data received'));
-    }
-    if (availabletypes.contains(PolarDataType.acc)) {
-      polar
-          .startAccStreaming(identifier)
-          .listen((e) => log('ACC data received'));
-    }
-  }
-
-  void log(String log) {
-    // ignore: avoid_print
-    print(log);
-    setState(() {
-      logs.add(log);
-    });
-  }
-
-  Future<void> handleRecordingAction(RecordingAction action) async {
-    switch (action) {
-      case RecordingAction.start:
-        log('Starting recording');
-        await polar.startRecording(
-          identifier,
-          exerciseId: const Uuid().v4(),
-          interval: RecordingInterval.interval_1s,
-          sampleType: SampleType.rr,
-        );
-        log('Started recording');
-        break;
-      case RecordingAction.stop:
-        log('Stopping recording');
-        await polar.stopRecording(identifier);
-        log('Stopped recording');
-        break;
-      case RecordingAction.status:
-        log('Getting recording status');
-        final status = await polar.requestRecordingStatus(identifier);
-        log('Recording status: $status');
-        break;
-      case RecordingAction.list:
-        log('Listing recordings');
-        final entries = await polar.listExercises(identifier);
-        log('Recordings: $entries');
-        // H10 can only store one recording at a time
-        exerciseEntry = entries.first;
-        break;
-      case RecordingAction.fetch:
-        log('Fetching recording');
-        if (exerciseEntry == null) {
-          log('Exercises not yet listed');
-          await handleRecordingAction(RecordingAction.list);
-        }
-        final entry = await polar.fetchExercise(identifier, exerciseEntry!);
-        log('Fetched recording: $entry');
-        break;
-      case RecordingAction.remove:
-        log('Removing recording');
-        if (exerciseEntry == null) {
-          log('No exercise to remove. Try calling list first.');
-          return;
-        }
-        await polar.removeExercise(identifier, exerciseEntry!);
-        log('Removed recording');
-        break;
-    }
   }
 }
 
-enum RecordingAction {
-  start,
-  stop,
-  status,
-  list,
-  fetch,
-  remove,
+//
+// This observer listens for Bluetooth Off and dismisses the DeviceScreen
+//
+class BluetoothAdapterStateObserver extends NavigatorObserver {
+  StreamSubscription<BluetoothAdapterState>? _adapterStateSubscription;
+
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    super.didPush(route, previousRoute);
+    if (route.settings.name == '/DeviceScreen') {
+      // Start listening to Bluetooth state changes when a new route is pushed
+      _adapterStateSubscription ??=
+          FlutterBluePlus.adapterState.listen((state) {
+        if (state != BluetoothAdapterState.on) {
+          // Pop the current route if Bluetooth is off
+          navigator?.pop();
+        }
+      });
+    }
+  }
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    super.didPop(route, previousRoute);
+    // Cancel the subscription when the route is popped
+    _adapterStateSubscription?.cancel();
+    _adapterStateSubscription = null;
+  }
 }
