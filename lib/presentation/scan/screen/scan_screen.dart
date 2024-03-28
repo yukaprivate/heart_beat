@@ -272,9 +272,9 @@ class _ScanScreenState extends State<ScanScreen> {
           ElevatedButton(
             child: const Text('色々権限付与したイオ'),
             style: ElevatedButton.styleFrom(
-              primary: Colors.orange,
-              onPrimary: Colors.white,
-            ),
+                // primary: Colors.orange,
+                // onPrimary: Colors.white,
+                ),
             onPressed: () async {
               await presenter.requestPermisision();
             },
@@ -282,9 +282,9 @@ class _ScanScreenState extends State<ScanScreen> {
           ElevatedButton(
             child: const Text('再度読み込みたいな！'),
             style: ElevatedButton.styleFrom(
-              primary: Colors.orange,
-              onPrimary: Colors.white,
-            ),
+                // primary: Colors.orange,
+                // onPrimary: Colors.white,
+                ),
             onPressed: () async {
               await presenter.fetchIdentifier();
             },

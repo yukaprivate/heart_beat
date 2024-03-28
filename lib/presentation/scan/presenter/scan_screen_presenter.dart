@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -84,25 +85,27 @@ class ScanScrennPresenter extends Cubit<ScreenState> {
         throw Exception("Another scan is already in progress");
       }
       // スキャン結果を格納するリスト
+      print('ここきた');
 
       // スキャンのリスナーを設定し、結果をリストに追加する
-      // _streamFetchId = state.polar.batteryLevel.listen((event) {
-      //   final aa = [...state.identifier];
-      //   aa.add(event.identifier);
-      //   emit(state.copyWith(
-      //     identifier: aa,
-      //   ));
-      // });
-
-      final aaaa = state.polar.connectToDevice(state.identifier[0]);
-
-      _streamPolarDeviceInfo = state.polar.searchForDevice().listen((event) {
+      _streamFetchId = state.polar.batteryLevel.listen((event) {
         final aa = [...state.identifier];
-        aa.add(event.deviceId);
+        aa.add(event.identifier);
+        print('aa------$aa');
         emit(state.copyWith(
           identifier: aa,
         ));
       });
+
+      // final aaaa = state.polar.connectToDevice(state.identifier[0]);
+
+      // _streamPolarDeviceInfo = state.polar.searchForDevice().listen((event) {
+      //   final aa = [...state.identifier];
+      //   aa.add(event.deviceId);
+      //   emit(state.copyWith(
+      //     identifier: aa,
+      //   ));
+      // });
     } finally {
       // リスナーをキャンセルする
       // await _streamFetchId.cancel();
