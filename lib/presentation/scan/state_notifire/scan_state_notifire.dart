@@ -1,60 +1,64 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:heart_beat/domain/scan/enum/loading_status_enum.dart';
+import 'package:heart_beat/presentation/common/screen/widget/dialog/common_dialog.dart';
 import 'package:heart_beat/presentation/scan/state/screen_state.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:polar/polar.dart';
 
-// class MainEntities {
-//   MainEntities({
-//     required this.identifier,
-//     required this.polar,
-//     this.isLoading = true,
-//   });
+class SetItemChildProps extends Equatable {
+  const SetItemChildProps(
+    this.context,
+  );
+  final BuildContext context;
 
-//   List<String> identifier;
-//   final Polar polar;
-//   bool isLoading;
-// }
+  @override
+  List<Object?> get props => [
+        context,
+      ];
+}
 
-class ScanScrennPresenter extends Cubit<ScreenState> {
-  ScanScrennPresenter()
-      : super(ScreenState(
+final scanStateNotifire = StateNotifierProvider.family<
+        ScanStateNotifire, ScreenState, SetItemChildProps>(
+    ((ref, props) => ScanStateNotifire(
+          ref,
+          props.context,
+        )));
+
+class ScanStateNotifire extends StateNotifier<ScreenState> {
+  ScanStateNotifire(
+    this._ref,
+    this._context,
+  ) : super(ScreenState(
           scanResults: [],
           identifier: [],
           polar: Polar(),
           isLoading: true,
           status: LoadingStatus.initial,
-        ));
-  late StreamSubscription<List<ScanResult>> _subscription;
-  late StreamSubscription<PolarBatteryLevelEvent> _streamFetchId;
-  late StreamSubscription<PolarDeviceInfo> _streamPolarDeviceInfo;
+        )) {
+    init();
+  }
 
-  Future<void> onInitState() async {
-    emit(state.copyWith(
-      isLoading: true,
-    ));
-    try {
-      await requestPermisision();
-      await fetchIdentifier();
-      await getScanResult();
-    } catch (e) {
-      emit(state.copyWith(
-        status: LoadingStatus.faild,
-      ));
-    } finally {
-      emit(state.copyWith(
-        isLoading: false,
-        status: LoadingStatus.success,
-      ));
-    }
+  final Ref _ref; //後で使うかもだから置いとく
+
+  final BuildContext _context;
+
+  late StreamSubscription<List<ScanResult>> _subscription;
+
+  Future<void> init() async {
+    requestPermisision();
+    getScanResult();
   }
 
   Future<void> requestPermisision() async {
+    if (Platform.isAndroid) {
+      await FlutterBluePlus.turnOn();
+    }
     final storagePermission = await Permission.storage.status;
     if (storagePermission != PermissionStatus.granted) {
       await Permission.storage.request();
@@ -79,10 +83,9 @@ class ScanScrennPresenter extends Cubit<ScreenState> {
   }
 
   Future<void> fetchIdentifier() async {
-    List<String> identifiers = [];
-    List<PolarDeviceInfo> polarDeviceInfos = [];
     try {
       if (FlutterBluePlus.isScanningNow) {
+        _showFaildDialog('Another scan is already in progress');
         throw Exception("Another scan is already in progress");
       }
       // スキャン結果を格納するリスト
@@ -100,13 +103,10 @@ class ScanScrennPresenter extends Cubit<ScreenState> {
 
       // final aaaa = state.polar.connectToDevice(state.identifier[0]);
 
-      _streamPolarDeviceInfo = state.polar.searchForDevice().listen((event) {
-        final aa = [...state.identifier];
-        aa.add('----event.deviceId');
-        aa.add(event.deviceId);
-        emit(state.copyWith(
-          identifier: aa,
-        ));
+      state.polar.searchForDevice().listen((event) {
+        state = state.copyWith(
+          identifier: [...state.identifier],
+        );
       });
     } finally {
       // リスナーをキャンセルする
@@ -122,82 +122,59 @@ class ScanScrennPresenter extends Cubit<ScreenState> {
     // ));
   }
 
-  Future<void> dispasePage() async {
-    // リスナーをキャンセルする
-    await _streamFetchId.cancel();
-    await _streamPolarDeviceInfo.cancel();
-  }
-
-  // せっかく書いたから消したくない
   Future<void> getScanResult() async {
     List<ScanResult> output = [];
+    StreamSubscription<List<ScanResult>>? streamSubscription;
     try {
+      state = state.copyWith(
+        status: LoadingStatus.loading,
+      );
       if (FlutterBluePlus.isScanningNow) {
         throw Exception("Another scan is already in progress");
       }
       // スキャン結果を格納するリスト
 
       // スキャンのリスナーを設定し、結果をリストに追加する
-      _subscription = FlutterBluePlus.scanResults.listen((result) {
+      _subscription = FlutterBluePlus.onScanResults.listen((result) {
         output.addAll(result);
         print(output);
-        emit(state.copyWith(
-          scanResults: output,
-        ));
       }, onError: (e, stackTrace) {
+        _showFaildDialog('faild to scan');
         throw Exception(e);
       });
 
       // スキャンを開始する
       await FlutterBluePlus.startScan(
         withServices: [],
-        timeout: const Duration(seconds: 5),
+        timeout: const Duration(seconds: 10),
         removeIfGone: null,
         oneByOne: false,
         androidUsesFineLocation: false,
       );
       // スキャンが完了するまで待機する
-      await Future.delayed(const Duration(seconds: 10));
+      await Future.delayed(const Duration(seconds: 2));
     } finally {
+      // state更新
+      state = state.copyWith(
+        status: LoadingStatus.success,
+        scanResults: output,
+      );
+      print(state.scanResults);
       // スキャンを停止する
       await FlutterBluePlus.stopScan();
       // リスナーをキャンセルする
       await _subscription.cancel();
+      // await streamSubscription?.cancel();
       // 完了したスキャン結果を返す
     }
   }
 
-  Future<void> onInitPagetmp() async {
-    // var subscription = flutterBlue.scanResults.listen((results) {
-    //   print('きてる？');
-    //   print(results);
-    //   // do something with scan results
-    //   for (ScanResult r in results) {
-    //     print('${r.device.name} found! rssi: ${r.rssi}');
-    //   }
-    // });
-    // print('ナニコレ');
-    // print(subscription);
-
-    // final identifier =
-    //     polar.batteryLevel.first.then((value) => print(value.identifier));
-    print('ここきてる？');
-    final batteryLevels = await state.polar.batteryLevel.map((e) => e).toList();
-    final identifiers = await Future.wait(batteryLevels.map((event) async {
-      return event.identifier;
-    }));
-
-    print('ここきてる？');
-
-    for (final a in identifiers) {
-      print(a);
-    }
-
-    // state.identifier = identifiers;
-
-    state.polar.batteryLevel.listen((e) => print('Battery: ${e.level}'));
-    state.polar.deviceConnecting.listen((_) => print('Device connecting'));
-    state.polar.deviceConnected.listen((_) => print('Device connected'));
-    state.polar.deviceDisconnected.listen((_) => print('Device disconnected'));
+  void _showFaildDialog(String message) {
+    showDialog(
+      context: _context,
+      builder: (context) => CommonDialog(
+        child: Text(message),
+      ),
+    );
   }
 }

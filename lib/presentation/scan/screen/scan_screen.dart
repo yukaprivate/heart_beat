@@ -3,42 +3,16 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:heart_beat/domain/scan/enum/loading_status_enum.dart';
+import 'package:heart_beat/presentation/scan/state_notifire/scan_state_notifire.dart';
+import 'package:heart_beat/presentation/scan/widget/scan_screen.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../../injector.dart';
-import '../presenter/scan_screen_presenter.dart';
+// BlocBuilderでstateの更新を読み取るのよりも、
+// riverpodを使ってstateの更新を読み取る方が個人的に良い気がする....
 
-class ScanScreen extends StatefulWidget {
-  const ScanScreen({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  State<ScanScreen> createState() => _ScanScreenState();
-}
-
-class _ScanScreenState extends State<ScanScreen> {
-  // List<BluetoothDevice> _systemDevices = [];
-  // List<ScanResult> _scanResults = [];
-  // bool _isScanning = false;
-  // late StreamSubscription<List<ScanResult>> _scanResultsSubscription;
-  // late StreamSubscription<bool> _isScanningSubscription;
-  final presenter = injector.get<ScanScrennPresenter>();
-
-  @override
-  void initState() {
-    super.initState();
-
-    print('初め');
-
-    presenter.onInitState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    presenter.dispasePage();
-  }
+class ScanScreen extends ConsumerWidget {
+  const ScanScreen({super.key});
 
   // Future<void> initialize() async {
   //   _scanResults = (await startScanWithResult());
@@ -207,87 +181,89 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    // return ScaffoldMessenger(
-    //     child: Scaffold(
-    //       appBar: AppBar(
-    //         title: const Text('Find Devices'),
-    //       ),
-    //       body: RefreshIndicator(
-    //         onRefresh: onRefresh,
-    //         child: ListView(
-    //           children: <Widget>[],
-    //         ),
-    //       ),
-    //       floatingActionButton: Text('Hekko'),
-    //     ),
-    //   );
-    // if (widget.isLoading) {
-    //   return ScaffoldMessenger(
-    //     child: Scaffold(
-    //       appBar: AppBar(
-    //         title: const Text('Find Devices'),
-    //       ),
-    //       body: RefreshIndicator(
-    //         onRefresh: onRefresh,
-    //         child: ListView(
-    //           children: <Widget>[],
-    //         ),
-    //       ),
-    //       floatingActionButton: Text('Hekko'),
-    //     ),
-    //   );
-    // }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scanStateNotifireProvider =
+        scanStateNotifire(SetItemChildProps(context));
+    final scanResults = ref
+        .watch(scanStateNotifireProvider.select((value) => value.scanResults));
+
+    print('-----？？-----');
+    print(scanResults);
+
     return ScaffoldMessenger(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('initialize Polar Devices'),
+          title: const Text('Blue tooth devices'),
+          // title: const Text('initialize Polar Devices'),
         ),
         body: RefreshIndicator(
           onRefresh: () async {},
-          child: presenter.state.identifier.isNotEmpty
-              ? ListView(
-                  children: <Widget>[
-                    ..._buildSystemDeviceTiles(
-                      context,
-                      presenter.state.identifier,
-                    ),
-                    // ..._buildScanResultTiles(
-                    //   context,
-                    //   presenter.state.scanResults,
-                    // ),
-                  ],
+          child: scanResults.isNotEmpty
+              ? ListView.builder(
+                  itemCount: scanResults.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final scanResult = scanResults[index];
+                    return Column(
+                      children: [
+                        DeviceInfo(
+                          scanResult: scanResult,
+                        ),
+                      ],
+                    );
+                  },
                 )
-              : _NoData(),
+              : const _NoData(),
         ),
       ),
     );
   }
+}
 
-  Container _NoData() {
-    return Container(
+/// 表示するデータがない場合
+class _NoData extends ConsumerWidget {
+  const _NoData({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scanStateNotifireProvider =
+        scanStateNotifire(SetItemChildProps(context));
+    final status =
+        ref.watch(scanStateNotifireProvider.select((value) => value.status));
+
+    // 名前おかしいな
+    if (status == LoadingStatus.loading) {
+      return Container(
+        alignment: Alignment.center,
+        child: const CircularProgressIndicator(
+          backgroundColor: Color.fromARGB(237, 192, 187, 187),
+        ),
+      );
+    }
+
+    return Center(
       child: Column(
         children: [
-          Text('何もありません'),
+          const Text('no data'),
           ElevatedButton(
-            child: const Text('色々権限付与したイオ'),
-            style: ElevatedButton.styleFrom(
-                // primary: Colors.orange,
-                // onPrimary: Colors.white,
-                ),
+            style: ElevatedButton.styleFrom(),
             onPressed: () async {
-              await presenter.requestPermisision();
+              await ref
+                  .read(scanStateNotifireProvider.notifier)
+                  .requestPermisision();
             },
+            child: const Text('Authorization'),
           ),
           ElevatedButton(
-            child: const Text('再度読み込みたいな！'),
-            style: ElevatedButton.styleFrom(
-                // primary: Colors.orange,
-                // onPrimary: Colors.white,
-                ),
+            style: ElevatedButton.styleFrom(),
             onPressed: () async {
-              await presenter.fetchIdentifier();
+              await ref
+                  .read(scanStateNotifireProvider.notifier)
+                  .getScanResult();
+              // await presenter.fetchIdentifier();
             },
+            child: const Text('reload'),
           ),
         ],
       ),
