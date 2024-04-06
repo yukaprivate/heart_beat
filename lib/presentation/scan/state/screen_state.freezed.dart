@@ -12,7 +12,7 @@ part of 'screen_state.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$ScreenState {
@@ -86,11 +86,11 @@ class _$ScreenStateCopyWithImpl<$Res, $Val extends ScreenState>
 }
 
 /// @nodoc
-abstract class _$$_ScreenStateCopyWith<$Res>
+abstract class _$$ScreenStateImplCopyWith<$Res>
     implements $ScreenStateCopyWith<$Res> {
-  factory _$$_ScreenStateCopyWith(
-          _$_ScreenState value, $Res Function(_$_ScreenState) then) =
-      __$$_ScreenStateCopyWithImpl<$Res>;
+  factory _$$ScreenStateImplCopyWith(
+          _$ScreenStateImpl value, $Res Function(_$ScreenStateImpl) then) =
+      __$$ScreenStateImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -102,11 +102,11 @@ abstract class _$$_ScreenStateCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$_ScreenStateCopyWithImpl<$Res>
-    extends _$ScreenStateCopyWithImpl<$Res, _$_ScreenState>
-    implements _$$_ScreenStateCopyWith<$Res> {
-  __$$_ScreenStateCopyWithImpl(
-      _$_ScreenState _value, $Res Function(_$_ScreenState) _then)
+class __$$ScreenStateImplCopyWithImpl<$Res>
+    extends _$ScreenStateCopyWithImpl<$Res, _$ScreenStateImpl>
+    implements _$$ScreenStateImplCopyWith<$Res> {
+  __$$ScreenStateImplCopyWithImpl(
+      _$ScreenStateImpl _value, $Res Function(_$ScreenStateImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -118,7 +118,7 @@ class __$$_ScreenStateCopyWithImpl<$Res>
     Object? isLoading = null,
     Object? status = null,
   }) {
-    return _then(_$_ScreenState(
+    return _then(_$ScreenStateImpl(
       scanResults: null == scanResults
           ? _value._scanResults
           : scanResults // ignore: cast_nullable_to_non_nullable
@@ -145,8 +145,8 @@ class __$$_ScreenStateCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$_ScreenState extends _ScreenState with DiagnosticableTreeMixin {
-  const _$_ScreenState(
+class _$ScreenStateImpl extends _ScreenState with DiagnosticableTreeMixin {
+  const _$ScreenStateImpl(
       {required final List<ScanResult> scanResults,
       required final List<String> identifier,
       required this.polar,
@@ -197,10 +197,10 @@ class _$_ScreenState extends _ScreenState with DiagnosticableTreeMixin {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_ScreenState &&
+            other is _$ScreenStateImpl &&
             const DeepCollectionEquality()
                 .equals(other._scanResults, _scanResults) &&
             const DeepCollectionEquality()
@@ -223,8 +223,8 @@ class _$_ScreenState extends _ScreenState with DiagnosticableTreeMixin {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_ScreenStateCopyWith<_$_ScreenState> get copyWith =>
-      __$$_ScreenStateCopyWithImpl<_$_ScreenState>(this, _$identity);
+  _$$ScreenStateImplCopyWith<_$ScreenStateImpl> get copyWith =>
+      __$$ScreenStateImplCopyWithImpl<_$ScreenStateImpl>(this, _$identity);
 }
 
 abstract class _ScreenState extends ScreenState {
@@ -233,7 +233,7 @@ abstract class _ScreenState extends ScreenState {
       required final List<String> identifier,
       required final Polar polar,
       required final bool isLoading,
-      required final LoadingStatus status}) = _$_ScreenState;
+      required final LoadingStatus status}) = _$ScreenStateImpl;
   const _ScreenState._() : super._();
 
   @override
@@ -248,6 +248,6 @@ abstract class _ScreenState extends ScreenState {
   LoadingStatus get status;
   @override
   @JsonKey(ignore: true)
-  _$$_ScreenStateCopyWith<_$_ScreenState> get copyWith =>
+  _$$ScreenStateImplCopyWith<_$ScreenStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

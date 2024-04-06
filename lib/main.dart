@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get_it/get_it.dart';
+import 'package:heart_beat/presentation/home/screen/home_screen.dart';
 import 'package:heart_beat/presentation/scan/screen/scan_screen.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -88,7 +89,7 @@ class _FlutterBlueAppState extends State<FlutterBlueApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       color: Colors.lightBlue,
-      home: const ScanScreen(),
+      home: const HomeScreen(),
       navigatorObservers: [BluetoothAdapterStateObserver()],
     );
   }
