@@ -22,7 +22,7 @@ class HomeScreen extends ConsumerWidget {
         ref.watch(homeStateNotifire.select((value) => value.currentTab));
     // final provider = homeStateNotifire.notifier
     //     .select((value) => value.onChangeTab(context, value));
-
+    print('?');
     return ScaffoldMessenger(
       child: Scaffold(
         appBar: AppBar(
