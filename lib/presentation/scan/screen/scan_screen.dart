@@ -41,7 +41,7 @@ class ScanScreen extends ConsumerWidget {
                         const SizedBox(
                           height: 10,
                         ),
-                      const DeviceInfo(
+                      DeviceInfo(
                         scanResult: scanResult,
                       ),
                     ],
