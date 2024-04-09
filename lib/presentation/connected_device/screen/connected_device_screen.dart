@@ -135,10 +135,16 @@ class ConnectedDeviceScreen extends ConsumerWidget {
                     child: Column(
                       children: [
                         Text(
-                          'To connect BlueTooth, you need to use actual device, not simulator or web browser',
+                          'To connect BlueTooth, you need to use actual device, not simulator',
                         ),
                         Text(
                           'Bluetoothに接続するには、スマホ実機が必要です。',
+                        ),
+                        Text(
+                          'I just realized that you cannnot use this func with AWS anplify ><',
+                        ),
+                        Text(
+                          'あ、、、AWS anplify で見れない。。。？😅',
                         ),
                       ],
                     ),
