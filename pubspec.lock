@@ -564,10 +564,10 @@ packages:
     dependency: "direct main"
     description:
       name: polar
-      sha256: "43d091a9169790023f9e4708a4cd7e9bc6438781d4ea273298894d69a76b9a09"
+      sha256: "72970632c208acbed0f05f436d8ade8be30d37326bfa4d1f485059af9a5669f5"
       url: "https://pub.dev"
     source: hosted
-    version: "6.2.0"
+    version: "7.1.0"
   pool:
     dependency: transitive
     description:
