@@ -100,16 +100,44 @@ class PolarScreen extends ConsumerWidget {
                 ),
               );
             },
-            child: Padding(
+            child: const Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
               child: Row(
-                children: const [
+                children: [
                   Icon(Icons.add),
                   SizedBox(width: 4),
                   Text(
-                    'search new devoces',
+                    'search new devices',
                     style: TextStyle(
                       fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: Colors.grey, width: 1),
+            ),
+            child: const Padding(
+              padding: EdgeInsets.all(8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline),
+                  SizedBox(width: 7),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Text(
+                          'you need to polar device to connect Polar, make sure that your polar device is near you when connect it',
+                        ),
+                        Text(
+                          'Polarに接続するには、Polar実機が必要です。Polar実機が近くにある状態で接続してください。',
+                        ),
+                      ],
                     ),
                   ),
                 ],

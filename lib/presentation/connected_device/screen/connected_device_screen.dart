@@ -100,16 +100,47 @@ class ConnectedDeviceScreen extends ConsumerWidget {
                 ),
               );
             },
-            child: Padding(
+            child: const Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
               child: Row(
-                children: const [
+                children: [
                   Icon(Icons.add),
                   SizedBox(width: 4),
                   Text(
-                    'search new devoces',
+                    'search new devices',
                     style: TextStyle(
                       fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: Colors.grey, width: 1),
+            ),
+            child: const Padding(
+              padding: EdgeInsets.all(8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline),
+                  SizedBox(width: 7),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Text(
+                          'To connect BlueTooth, you need to use actual device, not simulator or web browser',
+                        ),
+                        Text(
+                          'Bluetoothに接続するには、スマホ実機が必要です。',
+                        ),
+                      ],
                     ),
                   ),
                 ],

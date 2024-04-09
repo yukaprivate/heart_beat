@@ -5,17 +5,17 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class DeviceInfo extends StatelessWidget {
   const DeviceInfo({
-    // required this.scanResult,
+    required this.scanResult,
     super.key,
   });
 
-  // final ScanResult scanResult;
+  final ScanResult scanResult;
 
   @override
   Widget build(BuildContext context) {
-    // if (!scanResult.advertisementData.connectable) {
-    //   return const SizedBox();
-    // }
+    if (!scanResult.advertisementData.connectable) {
+      return const SizedBox();
+    }
     // print(scanResult.advertisementData);
     // print(scanResult.advertisementData.serviceUuids.first.str);
     final tmp = ScanResult(
@@ -55,14 +55,14 @@ class DeviceInfo extends StatelessWidget {
                   ],
                 ),
               ),
-              Expanded(
+              const Expanded(
                 child: Padding(
                   padding: EdgeInsets.only(right: 16),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
                           'UUID',
                           style: TextStyle(fontSize: 10),

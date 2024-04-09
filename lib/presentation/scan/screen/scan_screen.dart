@@ -34,7 +34,7 @@ class ScanScreen extends ConsumerWidget {
             ? ListView.builder(
                 itemCount: 3,
                 itemBuilder: (BuildContext context, int index) {
-                  // final scanResult = scanResults[index];
+                  final scanResult = scanResults[index];
                   return Column(
                     children: [
                       if (index == 0)
@@ -42,8 +42,8 @@ class ScanScreen extends ConsumerWidget {
                           height: 10,
                         ),
                       const DeviceInfo(
-                          // scanResult: scanResult,
-                          ),
+                        scanResult: scanResult,
+                      ),
                     ],
                   );
                 },
